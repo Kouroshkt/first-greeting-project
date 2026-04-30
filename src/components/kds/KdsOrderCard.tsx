@@ -79,6 +79,14 @@ const KdsOrderCard = ({
 
   const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
 
+  // MFFO-45: en order är en specialbeställning om något item har
+  // tillval (added eller removed är ifyllt).
+  const isSpecial = order.items.some((it) => {
+    const a = it.customizations?.added?.length ?? 0;
+    const r = it.customizations?.removed?.length ?? 0;
+    return a + r > 0;
+  });
+
   return (
     <div
       className={`relative rounded-lg p-4 ${bgClass} ${
