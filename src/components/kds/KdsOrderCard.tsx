@@ -1,4 +1,4 @@
-import { AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export type OrderStatus = "pending" | "preparing" | "done";
 
@@ -79,12 +79,15 @@ const KdsOrderCard = ({
 
   const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
 
-  // MFFO-45: en order är en specialbeställning om något item har
-  // tillval (added eller removed är ifyllt).
+  // MFFO-45: SPECIAL visas endast vid tillvalen "glutenfritt bröd" (added)
+  // eller "sås" (removed).
+  const norm = (s: string) => s.toLowerCase().trim();
   const isSpecial = order.items.some((it) => {
-    const a = it.customizations?.added?.length ?? 0;
-    const r = it.customizations?.removed?.length ?? 0;
-    return a + r > 0;
+    const added = it.customizations?.added ?? [];
+    const removed = it.customizations?.removed ?? [];
+    const hasGlutenfritt = added.some((c) => norm(c).includes("glutenfri"));
+    const hasSåsRemoved = removed.some((c) => norm(c).includes("sås") || norm(c).includes("sas"));
+    return hasGlutenfritt || hasSåsRemoved;
   });
 
   return (
@@ -105,15 +108,6 @@ const KdsOrderCard = ({
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-3xl font-bold">#{order.order_number}</span>
-            {hasAllergen && (
-              <AlertTriangle
-                className="w-7 h-7"
-                fill="rgb(168 85 247)"
-                color="rgb(88 28 135)"
-                strokeWidth={2}
-                aria-label="Specialkost / Allergi"
-              />
-            )}
             {isCritical && (
               <span className="ml-1 px-2 py-0.5 rounded bg-red-600 text-white text-xs font-extrabold tracking-wide">
                 FÖRSENAD

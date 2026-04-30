@@ -42,7 +42,7 @@ const AdminPage = () => {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("alla");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("alla");
   const [page, setPage] = useState(1);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  
 
   useEffect(() => {
     const load = async () => {
@@ -332,19 +332,18 @@ const AdminPage = () => {
                 <th className="text-left px-4 py-3">Källa</th>
                 <th className="text-left px-4 py-3">Status</th>
                 <th className="text-left px-4 py-3">Tid (duration)</th>
-                <th className="text-left px-4 py-3">Innehåll</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                  <td colSpan={6} className="text-center py-8 text-gray-500">
                     Laddar…
                   </td>
                 </tr>
               ) : pageRows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                  <td colSpan={6} className="text-center py-8 text-gray-500">
                     Ingen data matchar filtret.
                   </td>
                 </tr>
@@ -353,7 +352,7 @@ const AdminPage = () => {
                   // MFFO-55: röd markering om duration > 15 min
                   const slow =
                     log.duration_ms !== null && log.duration_ms > 15 * 60 * 1000;
-                  const isOpen = expanded === log.id;
+                  
                   return (
                     <tr
                       key={log.id}
@@ -376,21 +375,6 @@ const AdminPage = () => {
                         }`}
                       >
                         {fmtDuration(log.duration_ms)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          onClick={() =>
-                            setExpanded(isOpen ? null : log.id)
-                          }
-                          className="text-amber-400 hover:underline"
-                        >
-                          {isOpen ? "Dölj" : "Visa detaljer"}
-                        </button>
-                        {isOpen && (
-                          <pre className="mt-2 bg-gray-950 p-3 rounded text-xs overflow-x-auto max-w-md">
-                            {JSON.stringify(log.changes, null, 2)}
-                          </pre>
-                        )}
                       </td>
                     </tr>
                   );
