@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import KdsOrderCard from "@/components/kds/KdsOrderCard";
 import { isPrepItem } from "@/data/menuData";
 import { useHighLoadAlert } from "@/hooks/useHighLoadAlert";
+import { logStatusChange } from "@/lib/orderLogger";
 
 type OrderStatus = "pending" | "preparing" | "done";
 
@@ -203,10 +204,25 @@ const KDSPage = () => {
       setConfirmingDone(null);
     }
 
+    const current = orders.find((o) => o.id === orderId);
+    const fromStatus = current?.status ?? "unknown";
+
     await supabase
       .from("orders")
       .update({ status: newStatus })
       .eq("id", orderId);
+
+    // MFFO-67: tyst loggning av status-byte (källa: kök)
+    if (current) {
+      void logStatusChange({
+        orderId,
+        orderNumber: current.order_number,
+        fromStatus,
+        toStatus: newStatus,
+        source: "kok",
+        createdAt: current.created_at,
+      });
+    }
   };
 
   // Manual reorder (MFFO-46): swap sortKey with neighbor + log
