@@ -75,6 +75,19 @@ Deno.serve(async (req) => {
     }
 
     // 5. Payment confirmed - send order to KDS
+    // MFFO-208: Om ordern inte innehåller några items som ska tillagas
+    // (endast drycker/items utan prep) hoppas KDS-steget över och
+    // ordern går direkt till "klara från köket" i luckdisplayen (status "done").
+    const NON_PREP_IDS = new Set(["9", "10", "11"]); // cola, juice, milkshake
+    const hasPrepItem = Array.isArray(cart) && cart.some((it: any) => {
+      if (it?.isPrep === true) return true;
+      if (NON_PREP_IDS.has(String(it?.id))) return false;
+      if (it?.category && it.category !== "dryck-tillbehor") return true;
+      // Default: om vi inte vet, anta prep så vi inte missar köksordrar
+      return !(it?.category === "dryck-tillbehor");
+    });
+    const initialStatus = hasPrepItem ? "pending" : "done";
+
     const { error: orderError } = await supabase
       .from("orders")
       .insert({
@@ -82,7 +95,7 @@ Deno.serve(async (req) => {
         order_number: orderNumber,
         order_type: orderType,
         items: cart,
-        status: "pending",
+        status: initialStatus,
       });
 
     if (orderError) {
