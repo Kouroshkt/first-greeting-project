@@ -240,7 +240,7 @@ const KDSPage = () => {
   const sortedOrders = [...orders].sort((a, b) => a.sortKey - b.sortKey);
 
   // MFFO-59: notis vid hög belastning (5 ordrar / 1 minut default)
-  const highLoad = useHighLoadAlert(5, 1);
+  const { active: highLoad } = useHighLoadAlert(5, 1);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">

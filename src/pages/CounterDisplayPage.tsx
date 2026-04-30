@@ -85,11 +85,15 @@ const CounterDisplayPage = () => {
     };
   }, [fetchOrders]);
 
+  // MFFO-59: notis vid hög belastning. Försvinner när "Visa för gäst" klickas.
+  const { active: highLoad, dismiss: dismissHighLoad } = useHighLoadAlert(5, 1);
+
   const markReady = async (orderId: string) => {
     await supabase
       .from("orders")
       .update({ status: "ready" })
       .eq("id", orderId);
+    dismissHighLoad();
   };
 
   const markPickedUp = async (orderId: string) => {
