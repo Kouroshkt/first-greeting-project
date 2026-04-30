@@ -34,6 +34,13 @@ const KDSPage = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<KDSOrder[]>([]);
   const [confirmingDone, setConfirmingDone] = useState<string | null>(null);
+  // MFFO-209: ticker som triggar re-render var 30:e sekund så minuter
+  // och färgmarkering uppdateras i realtid utan reload.
+  const [, setNowTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setNowTick((n) => n + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   // MFFO-206: Härleda allergener från tillval (kopplas till MFFO-47).
   // - Tillval "Glutenfritt bröd" => gluten-allergi
