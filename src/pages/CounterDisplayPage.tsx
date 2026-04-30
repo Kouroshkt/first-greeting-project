@@ -1,6 +1,8 @@
 import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useHighLoadAlert } from "@/hooks/useHighLoadAlert";
 
 interface CounterItem {
   id: string;
