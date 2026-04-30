@@ -118,7 +118,16 @@ const CounterDisplayPage = () => {
         <div className="flex items-center justify-between mb-3">
           <button onClick={() => navigate("/")} className="text-gray-400 hover:text-white">← Tillbaka</button>
           <h1 className="text-2xl font-bold">📋 Luckdisplay</h1>
-          <div className="w-16" />
+          {/* MFFO-59: röd varningstriangel till höger i headern vid hög belastning */}
+          <div className="w-16 flex justify-end">
+            {highLoad && (
+              <AlertTriangle
+                className="w-8 h-8 text-red-500"
+                fill="currentColor"
+                aria-label="Hög belastning – många ordrar"
+              />
+            )}
+          </div>
         </div>
         <div className="flex justify-center gap-4">
           <div className="px-4 py-2 rounded-lg font-bold bg-gray-600 text-white">
