@@ -197,9 +197,8 @@ const AdminPage = () => {
 
         {tableMissing && (
           <div className="bg-yellow-900/40 border border-yellow-700 text-yellow-200 p-4 rounded-lg mb-6">
-            <strong>Tabellen <code>order_logs</code> saknas.</strong> Kör
-            migrationen <code>supabase/manual-migrations/20260430_order_logs.sql</code>{" "}
-            i Lovable Cloud / Supabase för att aktivera loggningen.
+            <strong>Tabellen <code>order_logs</code> är inte tillgänglig.</strong>{" "}
+            Kontrollera att senaste migrationen är körd i Lovable Cloud.
           </div>
         )}
 
