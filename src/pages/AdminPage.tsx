@@ -266,7 +266,7 @@ const AdminPage = () => {
               Tid på dygnet: {String(hourRange[0]).padStart(2, "0")}–
               {String(hourRange[1]).padStart(2, "0")}
             </label>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-2 items-center w-full">
               <input
                 type="range"
                 min={0}
@@ -275,7 +275,7 @@ const AdminPage = () => {
                 onChange={(e) =>
                   setHourRange([Number(e.target.value), hourRange[1]])
                 }
-                className="flex-1"
+                className="flex-1 min-w-0"
               />
               <input
                 type="range"
@@ -285,7 +285,7 @@ const AdminPage = () => {
                 onChange={(e) =>
                   setHourRange([hourRange[0], Number(e.target.value)])
                 }
-                className="flex-1"
+                className="flex-1 min-w-0"
               />
             </div>
           </div>
