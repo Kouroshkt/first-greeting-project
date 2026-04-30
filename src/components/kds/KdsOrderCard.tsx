@@ -121,23 +121,35 @@ const KdsOrderCard = ({
             )}
           </div>
 
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={() => onMoveUp?.(order.id)}
-              disabled={!canMoveUp}
-              aria-label="Flytta upp"
-              className="w-8 h-8 rounded bg-black/10 hover:bg-black/20 disabled:opacity-30 flex items-center justify-center"
-            >
-              <ChevronUp className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => onMoveDown?.(order.id)}
-              disabled={!canMoveDown}
-              aria-label="Flytta ner"
-              className="w-8 h-8 rounded bg-black/10 hover:bg-black/20 disabled:opacity-30 flex items-center justify-center"
-            >
-              <ChevronDown className="w-5 h-5" />
-            </button>
+          <div className="flex items-start gap-2">
+            {/* MFFO-45: SPECIAL-märke i övre högra hörnet */}
+            {isSpecial && (
+              <span
+                className="px-2 py-1 rounded-md text-xs font-bold text-white"
+                style={{ backgroundColor: "#F59E0B" }}
+                aria-label="Specialbeställning"
+              >
+                SPECIAL
+              </span>
+            )}
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => onMoveUp?.(order.id)}
+                disabled={!canMoveUp}
+                aria-label="Flytta upp"
+                className="w-8 h-8 rounded bg-black/10 hover:bg-black/20 disabled:opacity-30 flex items-center justify-center"
+              >
+                <ChevronUp className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => onMoveDown?.(order.id)}
+                disabled={!canMoveDown}
+                aria-label="Flytta ner"
+                className="w-8 h-8 rounded bg-black/10 hover:bg-black/20 disabled:opacity-30 flex items-center justify-center"
+              >
+                <ChevronDown className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -163,14 +175,15 @@ const KdsOrderCard = ({
                     {item.quantity}x {item.name}
                   </span>
                 </div>
-                {item.customizations?.added?.map((c) => (
-                  <div key={`a-${c}`} className="ml-4 text-xs text-green-700">
-                    + {c}
-                  </div>
-                ))}
+                {/* MFFO-45: borttagna (−) visas överst, sedan tillagda (+) */}
                 {item.customizations?.removed?.map((c) => (
                   <div key={`r-${c}`} className="ml-4 text-xs text-red-700">
                     − {c}
+                  </div>
+                ))}
+                {item.customizations?.added?.map((c) => (
+                  <div key={`a-${c}`} className="ml-4 text-xs text-green-700">
+                    + {c}
                   </div>
                 ))}
               </li>
