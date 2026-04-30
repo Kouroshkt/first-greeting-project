@@ -53,12 +53,113 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          created_at: string
+          id: string
+          items: Json
+          order_number: number
+          order_type: string
+          status: string
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          items: Json
+          order_number: number
+          order_type: string
+          status?: string
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          items?: Json
+          order_number?: number
+          order_type?: string
+          status?: string
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      priority_logs: {
+        Row: {
+          created_at: string
+          direction: string
+          id: string
+          order_id: string
+          order_number: number
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          id?: string
+          order_id: string
+          order_number: number
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          id?: string
+          order_id?: string
+          order_number?: number
+        }
+        Relationships: []
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          encrypted_ref: string
+          id: string
+          order_number: number
+          payment_method: string
+          status: string
+          subtotal: number
+          tax: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          encrypted_ref: string
+          id?: string
+          order_number: number
+          payment_method: string
+          status?: string
+          subtotal: number
+          tax: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          encrypted_ref?: string
+          id?: string
+          order_number?: number
+          payment_method?: string
+          status?: string
+          subtotal?: number
+          tax?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_next_order_number: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
