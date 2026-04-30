@@ -332,7 +332,6 @@ const AdminPage = () => {
                 <th className="text-left px-4 py-3">Källa</th>
                 <th className="text-left px-4 py-3">Status</th>
                 <th className="text-left px-4 py-3">Tid (duration)</th>
-                <th className="text-left px-4 py-3">Innehåll</th>
               </tr>
             </thead>
             <tbody>
