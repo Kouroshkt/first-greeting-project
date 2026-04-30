@@ -90,18 +90,40 @@ const CounterDisplayPage = () => {
   const { active: highLoad, dismiss: dismissHighLoad } = useHighLoadAlert(5, 1);
 
   const markReady = async (orderId: string) => {
+    const current = orders.find((o) => o.id === orderId);
     await supabase
       .from("orders")
       .update({ status: "ready" })
       .eq("id", orderId);
     dismissHighLoad();
+    if (current) {
+      void logStatusChange({
+        orderId,
+        orderNumber: current.order_number,
+        fromStatus: current.status,
+        toStatus: "ready",
+        source: "lucka",
+        createdAt: current.created_at,
+      });
+    }
   };
 
   const markPickedUp = async (orderId: string) => {
+    const current = orders.find((o) => o.id === orderId);
     await supabase
       .from("orders")
       .update({ status: "picked_up" })
       .eq("id", orderId);
+    if (current) {
+      void logStatusChange({
+        orderId,
+        orderNumber: current.order_number,
+        fromStatus: current.status,
+        toStatus: "picked_up",
+        source: "lucka",
+        createdAt: current.created_at,
+      });
+    }
   };
 
   // MFFO-207: pending OCH preparing visas i "nya beställningar"-kolumnen
