@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useHighLoadAlert } from "@/hooks/useHighLoadAlert";
+import { logStatusChange } from "@/lib/orderLogger";
 
 interface CounterItem {
   id: string;
