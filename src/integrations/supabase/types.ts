@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      order_logs: {
+        Row: {
+          changes: Json | null
+          created_at: string
+          duration_ms: number | null
+          event_type: string
+          from_status: string | null
+          id: string
+          order_id: string
+          order_number: number
+          source: string
+          to_status: string | null
+        }
+        Insert: {
+          changes?: Json | null
+          created_at?: string
+          duration_ms?: number | null
+          event_type: string
+          from_status?: string | null
+          id?: string
+          order_id: string
+          order_number: number
+          source: string
+          to_status?: string | null
+        }
+        Update: {
+          changes?: Json | null
+          created_at?: string
+          duration_ms?: number | null
+          event_type?: string
+          from_status?: string | null
+          id?: string
+          order_id?: string
+          order_number?: number
+          source?: string
+          to_status?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string
