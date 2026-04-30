@@ -49,7 +49,9 @@ const CounterDisplayPage = () => {
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, status, order_type, created_at, items")
-      .in("status", ["pending", "done", "ready"])
+      // MFFO-207: inkludera 'preparing' så att ordern ligger kvar i LDS
+      // tills luckpersonalen klickar "Visa för gäst".
+      .in("status", ["pending", "preparing", "done", "ready"])
       .order("created_at", { ascending: true });
 
     if (!error && data) {
@@ -95,7 +97,11 @@ const CounterDisplayPage = () => {
       .eq("id", orderId);
   };
 
-  const pendingOrders = orders.filter((o) => o.status === "pending");
+  // MFFO-207: pending OCH preparing visas i "nya beställningar"-kolumnen
+  // tills luckpersonal manuellt flyttar dem via "Visa för gäst".
+  const pendingOrders = orders.filter(
+    (o) => o.status === "pending" || o.status === "preparing"
+  );
   const doneOrders = orders.filter((o) => o.status === "done");
   const readyOrders = orders.filter((o) => o.status === "ready");
 
