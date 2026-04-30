@@ -35,6 +35,25 @@ const KDSPage = () => {
   const [orders, setOrders] = useState<KDSOrder[]>([]);
   const [confirmingDone, setConfirmingDone] = useState<string | null>(null);
 
+  // MFFO-206: Härleda allergener från tillval (kopplas till MFFO-47).
+  // - Tillval "Glutenfritt bröd" => gluten-allergi
+  // - Borttaget "Sås" => laktos-allergi
+  const deriveAllergensFromCustomizations = (
+    base: string[] | undefined,
+    customizations?: { added?: string[]; removed?: string[] }
+  ): string[] => {
+    const set = new Set<string>(base ?? []);
+    const added = customizations?.added ?? [];
+    const removed = customizations?.removed ?? [];
+    if (added.some((a) => a.toLowerCase().includes("glutenfri"))) {
+      set.add("Gluten");
+    }
+    if (removed.some((r) => r.toLowerCase() === "sås")) {
+      set.add("Laktos");
+    }
+    return Array.from(set);
+  };
+
   // Map raw cart item shape ({menuItem, quantity}) into KDS item shape.
   const normalizeItems = (rawItems: unknown): OrderItem[] => {
     if (!Array.isArray(rawItems)) return [];
@@ -46,7 +65,10 @@ const KDSPage = () => {
           name: entry.menuItem.name,
           price: entry.menuItem.price,
           quantity: entry.quantity,
-          allergens: entry.menuItem.allergens,
+          allergens: deriveAllergensFromCustomizations(
+            entry.menuItem.allergens,
+            entry.customizations
+          ),
           isPrep: entry.menuItem.isPrep,
           category: entry.menuItem.category,
           customizations: entry.customizations,
@@ -58,7 +80,10 @@ const KDSPage = () => {
         name: entry.name,
         price: entry.price,
         quantity: entry.quantity,
-        allergens: entry.allergens,
+        allergens: deriveAllergensFromCustomizations(
+          entry.allergens,
+          entry.customizations
+        ),
         isPrep: entry.isPrep,
         category: entry.category,
         customizations: entry.customizations,
