@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
     });
     const initialStatus = hasPrepItem ? "pending" : "done";
 
-    const { error: orderError } = await supabase
+    const { data: insertedOrder, error: orderError } = await supabase
       .from("orders")
       .insert({
         transaction_id: transaction.id,
@@ -96,10 +96,28 @@ Deno.serve(async (req) => {
         order_type: orderType,
         items: cart,
         status: initialStatus,
-      });
+      })
+      .select()
+      .single();
 
     if (orderError) {
       throw new Error(`Orderfel: ${orderError.message}`);
+    }
+
+    // MFFO-67: tyst loggning – 'created' (källa: kiosk)
+    try {
+      await supabase.from("order_logs").insert({
+        order_id: insertedOrder.id,
+        order_number: orderNumber,
+        event_type: "created",
+        source: "kiosk",
+        from_status: null,
+        to_status: initialStatus,
+        changes: { items: cart, order_type: orderType, initial_status: initialStatus },
+        duration_ms: null,
+      });
+    } catch (logErr) {
+      console.warn("order_logs insert failed (created):", logErr);
     }
 
     // 6. Return success with order number
