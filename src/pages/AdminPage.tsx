@@ -42,7 +42,7 @@ const AdminPage = () => {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("alla");
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("alla");
   const [page, setPage] = useState(1);
-  const [expanded, setExpanded] = useState<string | null>(null);
+  
 
   useEffect(() => {
     const load = async () => {
@@ -352,7 +352,7 @@ const AdminPage = () => {
                   // MFFO-55: röd markering om duration > 15 min
                   const slow =
                     log.duration_ms !== null && log.duration_ms > 15 * 60 * 1000;
-                  const isOpen = expanded === log.id;
+                  
                   return (
                     <tr
                       key={log.id}
