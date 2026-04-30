@@ -261,7 +261,7 @@ const AdminPage = () => {
               className="w-full bg-gray-800 text-white rounded px-3 py-2"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="block text-xs text-gray-400 mb-1">
               Tid på dygnet: {String(hourRange[0]).padStart(2, "0")}–
               {String(hourRange[1]).padStart(2, "0")}
