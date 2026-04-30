@@ -1,6 +1,9 @@
 import { useEffect, useState, useCallback, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useHighLoadAlert } from "@/hooks/useHighLoadAlert";
+import { logStatusChange } from "@/lib/orderLogger";
 
 interface CounterItem {
   id: string;
@@ -49,7 +52,9 @@ const CounterDisplayPage = () => {
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, status, order_type, created_at, items")
-      .in("status", ["pending", "done", "ready"])
+      // MFFO-207: inkludera 'preparing' så att ordern ligger kvar i LDS
+      // tills luckpersonalen klickar "Visa för gäst".
+      .in("status", ["pending", "preparing", "done", "ready"])
       .order("created_at", { ascending: true });
 
     if (!error && data) {
@@ -81,21 +86,51 @@ const CounterDisplayPage = () => {
     };
   }, [fetchOrders]);
 
+  // MFFO-59: notis vid hög belastning. Försvinner när "Visa för gäst" klickas.
+  const { active: highLoad, dismiss: dismissHighLoad } = useHighLoadAlert(5, 1);
+
   const markReady = async (orderId: string) => {
+    const current = orders.find((o) => o.id === orderId);
     await supabase
       .from("orders")
       .update({ status: "ready" })
       .eq("id", orderId);
+    dismissHighLoad();
+    if (current) {
+      void logStatusChange({
+        orderId,
+        orderNumber: current.order_number,
+        fromStatus: current.status,
+        toStatus: "ready",
+        source: "lucka",
+        createdAt: current.created_at,
+      });
+    }
   };
 
   const markPickedUp = async (orderId: string) => {
+    const current = orders.find((o) => o.id === orderId);
     await supabase
       .from("orders")
       .update({ status: "picked_up" })
       .eq("id", orderId);
+    if (current) {
+      void logStatusChange({
+        orderId,
+        orderNumber: current.order_number,
+        fromStatus: current.status,
+        toStatus: "picked_up",
+        source: "lucka",
+        createdAt: current.created_at,
+      });
+    }
   };
 
-  const pendingOrders = orders.filter((o) => o.status === "pending");
+  // MFFO-207: pending OCH preparing visas i "nya beställningar"-kolumnen
+  // tills luckpersonal manuellt flyttar dem via "Visa för gäst".
+  const pendingOrders = orders.filter(
+    (o) => o.status === "pending" || o.status === "preparing"
+  );
   const doneOrders = orders.filter((o) => o.status === "done");
   const readyOrders = orders.filter((o) => o.status === "ready");
 
@@ -106,7 +141,16 @@ const CounterDisplayPage = () => {
         <div className="flex items-center justify-between mb-3">
           <button onClick={() => navigate("/")} className="text-gray-400 hover:text-white">← Tillbaka</button>
           <h1 className="text-2xl font-bold">📋 Luckdisplay</h1>
-          <div className="w-16" />
+          {/* MFFO-59: röd varningstriangel till höger i headern vid hög belastning */}
+          <div className="w-16 flex justify-end">
+            {highLoad && (
+              <AlertTriangle
+                className="w-8 h-8 text-red-500"
+                fill="currentColor"
+                aria-label="Hög belastning – många ordrar"
+              />
+            )}
+          </div>
         </div>
         <div className="flex justify-center gap-4">
           <div className="px-4 py-2 rounded-lg font-bold bg-gray-600 text-white">

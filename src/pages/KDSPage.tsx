@@ -1,8 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import KdsOrderCard from "@/components/kds/KdsOrderCard";
 import { isPrepItem } from "@/data/menuData";
+import { useHighLoadAlert } from "@/hooks/useHighLoadAlert";
+import { logStatusChange } from "@/lib/orderLogger";
 
 type OrderStatus = "pending" | "preparing" | "done";
 
@@ -34,6 +37,32 @@ const KDSPage = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<KDSOrder[]>([]);
   const [confirmingDone, setConfirmingDone] = useState<string | null>(null);
+  // MFFO-209: ticker som triggar re-render var 30:e sekund så minuter
+  // och färgmarkering uppdateras i realtid utan reload.
+  const [, setNowTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setNowTick((n) => n + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  // MFFO-206: Härleda allergener från tillval (kopplas till MFFO-47).
+  // - Tillval "Glutenfritt bröd" => gluten-allergi
+  // - Borttaget "Sås" => laktos-allergi
+  const deriveAllergensFromCustomizations = (
+    base: string[] | undefined,
+    customizations?: { added?: string[]; removed?: string[] }
+  ): string[] => {
+    const set = new Set<string>(base ?? []);
+    const added = customizations?.added ?? [];
+    const removed = customizations?.removed ?? [];
+    if (added.some((a) => a.toLowerCase().includes("glutenfri"))) {
+      set.add("Gluten");
+    }
+    if (removed.some((r) => r.toLowerCase() === "sås")) {
+      set.add("Laktos");
+    }
+    return Array.from(set);
+  };
 
   // Map raw cart item shape ({menuItem, quantity}) into KDS item shape.
   const normalizeItems = (rawItems: unknown): OrderItem[] => {
@@ -46,7 +75,10 @@ const KDSPage = () => {
           name: entry.menuItem.name,
           price: entry.menuItem.price,
           quantity: entry.quantity,
-          allergens: entry.menuItem.allergens,
+          allergens: deriveAllergensFromCustomizations(
+            entry.menuItem.allergens,
+            entry.customizations
+          ),
           isPrep: entry.menuItem.isPrep,
           category: entry.menuItem.category,
           customizations: entry.customizations,
@@ -58,7 +90,10 @@ const KDSPage = () => {
         name: entry.name,
         price: entry.price,
         quantity: entry.quantity,
-        allergens: entry.allergens,
+        allergens: deriveAllergensFromCustomizations(
+          entry.allergens,
+          entry.customizations
+        ),
         isPrep: entry.isPrep,
         category: entry.category,
         customizations: entry.customizations,
@@ -169,10 +204,25 @@ const KDSPage = () => {
       setConfirmingDone(null);
     }
 
+    const current = orders.find((o) => o.id === orderId);
+    const fromStatus = current?.status ?? "unknown";
+
     await supabase
       .from("orders")
       .update({ status: newStatus })
       .eq("id", orderId);
+
+    // MFFO-67: tyst loggning av status-byte (källa: kök)
+    if (current) {
+      void logStatusChange({
+        orderId,
+        orderNumber: current.order_number,
+        fromStatus,
+        toStatus: newStatus,
+        source: "kok",
+        createdAt: current.created_at,
+      });
+    }
   };
 
   // Manual reorder (MFFO-46): swap sortKey with neighbor + log
@@ -205,6 +255,9 @@ const KDSPage = () => {
   // Sort by manual sortKey (which mirrors waiting time by default — longest waits first)
   const sortedOrders = [...orders].sort((a, b) => a.sortKey - b.sortKey);
 
+  // MFFO-59: notis vid hög belastning (5 ordrar / 1 minut default)
+  const { active: highLoad } = useHighLoadAlert(5, 1);
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       {/* Header */}
@@ -212,6 +265,13 @@ const KDSPage = () => {
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/")} className="text-gray-400 hover:text-white">← Tillbaka</button>
           <h1 className="text-2xl font-bold">🍳 Köksdisplay (KDS)</h1>
+          {highLoad && (
+            <AlertTriangle
+              className="w-7 h-7 text-red-500"
+              fill="currentColor"
+              aria-label="Hög belastning – många ordrar"
+            />
+          )}
         </div>
         <span className="text-sm text-gray-400">
           Aktiva: {sortedOrders.length}

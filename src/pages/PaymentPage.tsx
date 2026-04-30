@@ -36,6 +36,11 @@ const PaymentPage = () => {
             name: item.menuItem.name,
             price: item.menuItem.price,
             quantity: item.quantity,
+            // MFFO-208: behövs för att backend ska kunna avgöra om ordern har prep-items
+            category: item.menuItem.category,
+            isPrep: item.menuItem.isPrep,
+            allergens: item.menuItem.allergens,
+            customizations: item.customizations,
           })),
           orderType,
           subtotal: getSubtotal(),

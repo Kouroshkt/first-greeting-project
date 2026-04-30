@@ -11,6 +11,7 @@ import PaymentPage from "./pages/PaymentPage";
 import KDSPage from "./pages/KDSPage";
 import GuestDisplayPage from "./pages/GuestDisplayPage";
 import CounterDisplayPage from "./pages/CounterDisplayPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/kds" element={<KDSPage />} />
           <Route path="/status" element={<GuestDisplayPage />} />
           <Route path="/lucka" element={<CounterDisplayPage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
