@@ -337,13 +337,13 @@ const AdminPage = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                  <td colSpan={6} className="text-center py-8 text-gray-500">
                     Laddar…
                   </td>
                 </tr>
               ) : pageRows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
+                  <td colSpan={6} className="text-center py-8 text-gray-500">
                     Ingen data matchar filtret.
                   </td>
                 </tr>
@@ -375,21 +375,6 @@ const AdminPage = () => {
                         }`}
                       >
                         {fmtDuration(log.duration_ms)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <button
-                          onClick={() =>
-                            setExpanded(isOpen ? null : log.id)
-                          }
-                          className="text-amber-400 hover:underline"
-                        >
-                          {isOpen ? "Dölj" : "Visa detaljer"}
-                        </button>
-                        {isOpen && (
-                          <pre className="mt-2 bg-gray-950 p-3 rounded text-xs overflow-x-auto max-w-md">
-                            {JSON.stringify(log.changes, null, 2)}
-                          </pre>
-                        )}
                       </td>
                     </tr>
                   );
