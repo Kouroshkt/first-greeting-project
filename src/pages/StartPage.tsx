@@ -83,6 +83,12 @@ const StartPage = () => {
         >
           📋 Luckdisplay
         </button>
+        <button
+          onClick={() => navigate("/admin")}
+          className="px-4 py-2 bg-card rounded-lg shadow text-sm font-body font-medium text-foreground hover:shadow-md"
+        >
+          📊 Admin
+        </button>
       </div>
 
       {/* Language Selector */}
