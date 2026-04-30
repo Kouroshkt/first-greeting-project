@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import KdsOrderCard from "@/components/kds/KdsOrderCard";
 import { isPrepItem } from "@/data/menuData";
+import { useHighLoadAlert } from "@/hooks/useHighLoadAlert";
 
 type OrderStatus = "pending" | "preparing" | "done";
 
@@ -237,6 +239,9 @@ const KDSPage = () => {
   // Sort by manual sortKey (which mirrors waiting time by default — longest waits first)
   const sortedOrders = [...orders].sort((a, b) => a.sortKey - b.sortKey);
 
+  // MFFO-59: notis vid hög belastning (5 ordrar / 1 minut default)
+  const highLoad = useHighLoadAlert(5, 1);
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4">
       {/* Header */}
@@ -244,6 +249,13 @@ const KDSPage = () => {
         <div className="flex items-center gap-3">
           <button onClick={() => navigate("/")} className="text-gray-400 hover:text-white">← Tillbaka</button>
           <h1 className="text-2xl font-bold">🍳 Köksdisplay (KDS)</h1>
+          {highLoad && (
+            <AlertTriangle
+              className="w-7 h-7 text-red-500"
+              fill="currentColor"
+              aria-label="Hög belastning – många ordrar"
+            />
+          )}
         </div>
         <span className="text-sm text-gray-400">
           Aktiva: {sortedOrders.length}
