@@ -1,11 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { useOrderStore } from "@/store/orderStore";
-import { addOnItems } from "@/data/menuData";
-import logo from "@/assets/butcher-burgers-logo.png";
+import { getConceptConfig } from "@/data/menuRegistry";
 
 const AddOnsPage = () => {
   const navigate = useNavigate();
-  const { addToCart, cart } = useOrderStore();
+  const { addToCart, cart, concept } = useOrderStore();
+  const config = getConceptConfig(concept);
+  const logo = config.logo;
+  const addOnItems = config.menuItems.filter(
+    (i) => i.category === "dryck-tillbehor"
+  );
 
   const hasBaseProduct = cart.some(
     (c) => c.menuItem.category !== "dryck-tillbehor"

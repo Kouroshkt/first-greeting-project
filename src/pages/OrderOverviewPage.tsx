@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useOrderStore, cartLineKey } from "@/store/orderStore";
-import logo from "@/assets/butcher-burgers-logo.png";
+import { getConceptConfig } from "@/data/menuRegistry";
 
 const OrderOverviewPage = () => {
   const navigate = useNavigate();
-  const { cart, updateQuantity, removeFromCart, getSubtotal, getTax, getTotal, orderType } =
+  const { cart, updateQuantity, removeFromCart, getSubtotal, getTax, getTotal, orderType, concept } =
     useOrderStore();
+  const logo = getConceptConfig(concept).logo;
 
   if (cart.length === 0) {
     return (

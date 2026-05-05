@@ -2,14 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOrderStore } from "@/store/orderStore";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/butcher-burgers-logo.png";
+import { getConceptConfig } from "@/data/menuRegistry";
 
 type PaymentMethod = "kort" | "swish" | null;
 
 const PaymentPage = () => {
   const navigate = useNavigate();
-  const { cart, getSubtotal, getTax, getTotal, orderType, clearCart } =
+  const { cart, getSubtotal, getTax, getTotal, orderType, clearCart, concept } =
     useOrderStore();
+  const logo = getConceptConfig(concept).logo;
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [isPaying, setIsPaying] = useState(false);
   const [isDone, setIsDone] = useState(false);
