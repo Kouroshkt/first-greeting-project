@@ -1,32 +1,29 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useOrderStore } from "@/store/orderStore";
-import {
-  menuItems,
-  categories,
-  CUSTOMIZABLE_CATEGORIES,
-  type Allergen,
-  type MenuItem,
-} from "@/data/menuData";
+import { getConceptConfig } from "@/data/menuRegistry";
+import { type Allergen, type MenuItem } from "@/data/menuData";
 import CustomizationModal from "@/components/CustomizationModal";
-import logo from "@/assets/butcher-burgers-logo.png";
 
 const allergenLabels: Allergen[] = ["Gluten", "Laktos", "Vegetariskt"];
 
 const MenuPage = () => {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState<string>("hamburgare");
-  const { addToCart, cart } = useOrderStore();
+  const { addToCart, cart, concept } = useOrderStore();
+  const config = getConceptConfig(concept);
+  const [activeCategory, setActiveCategory] = useState<string>(
+    config.categories[0]?.id ?? "hamburgare"
+  );
   const [modalItem, setModalItem] = useState<MenuItem | null>(null);
 
-  const filteredItems = menuItems.filter(
+  const filteredItems = config.menuItems.filter(
     (item) => item.category === activeCategory
   );
 
   const cartCount = cart.reduce((sum, c) => sum + c.quantity, 0);
 
   const handleItemClick = (item: MenuItem) => {
-    if (CUSTOMIZABLE_CATEGORIES.includes(item.category)) {
+    if (config.customizableCategories.includes(item.category)) {
       setModalItem(item);
     } else {
       addToCart(item);
@@ -38,7 +35,7 @@ const MenuPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-card shadow-sm">
         <button onClick={() => navigate("/")} className="hover:opacity-80">
-          <img src={logo} alt="Butcher Burgers" className="h-12 w-auto" />
+          <img src={config.logo} alt={config.name} className="h-12 w-auto" />
         </button>
         <button
           onClick={() => navigate("/oversikt")}
@@ -55,7 +52,7 @@ const MenuPage = () => {
 
       {/* Categories */}
       <div className="flex gap-3 px-6 py-4 overflow-x-auto">
-        {categories.map((cat) => (
+        {config.categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}

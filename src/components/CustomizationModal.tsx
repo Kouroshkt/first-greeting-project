@@ -8,12 +8,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  BURGER_ADD_OPTIONS,
-  BURGER_REMOVE_OPTIONS,
-  type MenuItem,
-} from "@/data/menuData";
-import type { Customizations } from "@/store/orderStore";
+import { type MenuItem } from "@/data/menuData";
+import { getConceptConfig } from "@/data/menuRegistry";
+import { useOrderStore, type Customizations } from "@/store/orderStore";
 
 interface Props {
   item: MenuItem | null;
@@ -23,6 +20,8 @@ interface Props {
 }
 
 const CustomizationModal = ({ item, open, onOpenChange, onConfirm }: Props) => {
+  const concept = useOrderStore((s) => s.concept);
+  const config = getConceptConfig(concept);
   const [added, setAdded] = useState<string[]>([]);
   const [removed, setRemoved] = useState<string[]>([]);
 
@@ -55,7 +54,7 @@ const CustomizationModal = ({ item, open, onOpenChange, onConfirm }: Props) => {
         <DialogHeader>
           <DialogTitle className="font-heading">{item.name}</DialogTitle>
           <DialogDescription className="font-body">
-            Anpassa din burgare. Tillvalen ingår i priset.
+            Anpassa din beställning. Tillvalen ingår i priset.
           </DialogDescription>
         </DialogHeader>
 
@@ -65,7 +64,7 @@ const CustomizationModal = ({ item, open, onOpenChange, onConfirm }: Props) => {
               Lägg till
             </h4>
             <div className="grid grid-cols-2 gap-2">
-              {BURGER_ADD_OPTIONS.map((opt) => (
+              {config.addOptions.map((opt) => (
                 <label
                   key={opt}
                   className="flex items-center gap-2 p-2 rounded-lg border border-border cursor-pointer hover:bg-muted/50"
@@ -85,7 +84,7 @@ const CustomizationModal = ({ item, open, onOpenChange, onConfirm }: Props) => {
               Ta bort
             </h4>
             <div className="grid grid-cols-2 gap-2">
-              {BURGER_REMOVE_OPTIONS.map((opt) => (
+              {config.removeOptions.map((opt) => (
                 <label
                   key={opt}
                   className="flex items-center gap-2 p-2 rounded-lg border border-border cursor-pointer hover:bg-muted/50"
