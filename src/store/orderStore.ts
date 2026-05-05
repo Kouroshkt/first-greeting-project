@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { CartItem, MenuItem } from "@/data/menuData";
 
 export type OrderType = "dine-in" | "take-away";
+export type Concept = "bb" | "fs";
 
 export interface Customizations {
   added: string[];
@@ -20,8 +21,10 @@ const cartLineKey = (itemId: string, c?: Customizations) =>
   `${itemId}::${[...(c?.added ?? [])].sort().join(",")}::${[...(c?.removed ?? [])].sort().join(",")}`;
 
 interface OrderState {
+  concept: Concept | null;
   orderType: OrderType | null;
   cart: CartItem[];
+  setConcept: (c: Concept) => void;
   setOrderType: (type: OrderType) => void;
   addToCart: (item: MenuItem, customizations?: Customizations) => void;
   removeFromCart: (lineKey: string) => void;
@@ -33,9 +36,11 @@ interface OrderState {
 }
 
 export const useOrderStore = create<OrderState>((set, get) => ({
+  concept: null,
   orderType: null,
   cart: [],
 
+  setConcept: (c) => set({ concept: c }),
   setOrderType: (type) => set({ orderType: type }),
 
   addToCart: (item, customizations) =>
@@ -88,7 +93,7 @@ export const useOrderStore = create<OrderState>((set, get) => ({
       };
     }),
 
-  clearCart: () => set({ cart: [], orderType: null }),
+  clearCart: () => set({ cart: [], orderType: null, concept: null }),
 
   getSubtotal: () => {
     const { cart } = get();
