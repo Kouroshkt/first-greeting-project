@@ -79,15 +79,18 @@ const KdsOrderCard = ({
 
   const itemCount = order.items.reduce((sum, i) => sum + i.quantity, 0);
 
-  // MFFO-45: SPECIAL visas endast vid tillvalen "glutenfritt bröd" (added)
-  // eller "sås" (removed).
+  // MFFO-45 / MFFO-215: SPECIAL visas vid:
+  //  - tillval "+glutenfritt bröd" (BB)
+  //  - borttag "−sås" (BB)
+  //  - borttag "−rostad lök" på sushi (FS = glutenfri)
   const norm = (s: string) => s.toLowerCase().trim();
   const isSpecial = order.items.some((it) => {
     const added = it.customizations?.added ?? [];
     const removed = it.customizations?.removed ?? [];
     const hasGlutenfritt = added.some((c) => norm(c).includes("glutenfri"));
     const hasSåsRemoved = removed.some((c) => norm(c).includes("sås") || norm(c).includes("sas"));
-    return hasGlutenfritt || hasSåsRemoved;
+    const hasRostadLokRemoved = removed.some((c) => norm(c).includes("rostad lök") || norm(c).includes("rostad lok"));
+    return hasGlutenfritt || hasSåsRemoved || hasRostadLokRemoved;
   });
 
   return (
