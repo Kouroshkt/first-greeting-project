@@ -21,13 +21,18 @@ const GuestDisplayPage = () => {
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, status, updated_at")
-      .in("status", ["preparing", "ready"])
+      // MFFO: 'done' (klarmarkerad i KDS) ska fortfarande visas som "tillagas"
+      // för gästen — ordern flyttas till "Klar att hämta" först när luckan
+      // manuellt markerar den som klar (status -> 'ready').
+      .in("status", ["preparing", "done", "ready"])
       .order("created_at", { ascending: true });
 
     if (!error && data) {
       setOrders(
         data.map((o) => ({
           ...o,
+          // 'done' från KDS visas som "tillagas" tills luckan markerar 'ready'
+          status: o.status === "done" ? "preparing" : o.status,
           readyAt: o.status === "ready" ? Date.now() : undefined,
         }))
       );
@@ -105,8 +110,8 @@ const GuestDisplayPage = () => {
             } catch {}
             return;
           }
-          // For preparing status, add/update
-          if (updated.status === "preparing") {
+          // För 'preparing' OCH 'done' (klar i kök, inte hos lucka än) — visa som "tillagas"
+          if (updated.status === "preparing" || updated.status === "done") {
             setOrders((prev) => {
               const exists = prev.find((o) => o.id === updated.id);
               if (exists) {
@@ -126,7 +131,7 @@ const GuestDisplayPage = () => {
             });
             return;
           }
-          // For other statuses (done, pending), remove from guest display
+          // För övriga statusar (pending) — ta bort från gästdisplay
           setOrders((prev) => prev.filter((o) => o.id !== updated.id));
         }
       )
