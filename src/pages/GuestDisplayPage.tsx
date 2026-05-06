@@ -110,8 +110,8 @@ const GuestDisplayPage = () => {
             } catch {}
             return;
           }
-          // For preparing status, add/update
-          if (updated.status === "preparing") {
+          // För 'preparing' OCH 'done' (klar i kök, inte hos lucka än) — visa som "tillagas"
+          if (updated.status === "preparing" || updated.status === "done") {
             setOrders((prev) => {
               const exists = prev.find((o) => o.id === updated.id);
               if (exists) {
@@ -131,7 +131,7 @@ const GuestDisplayPage = () => {
             });
             return;
           }
-          // For other statuses (done, pending), remove from guest display
+          // För övriga statusar (pending) — ta bort från gästdisplay
           setOrders((prev) => prev.filter((o) => o.id !== updated.id));
         }
       )
