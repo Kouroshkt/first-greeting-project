@@ -31,7 +31,10 @@ const GuestDisplayPage = () => {
       setOrders(
         data.map((o) => ({
           ...o,
+          status: o.status === "done" ? "preparing" : o.status,
           readyAt: o.status === "ready" ? Date.now() : undefined,
+        })).map((o) => ({
+          ...o,
         }))
       );
     }
