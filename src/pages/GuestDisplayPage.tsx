@@ -21,7 +21,10 @@ const GuestDisplayPage = () => {
     const { data, error } = await supabase
       .from("orders")
       .select("id, order_number, status, updated_at")
-      .in("status", ["preparing", "ready"])
+      // MFFO: 'done' (klarmarkerad i KDS) ska fortfarande visas som "tillagas"
+      // för gästen — ordern flyttas till "Klar att hämta" först när luckan
+      // manuellt markerar den som klar (status -> 'ready').
+      .in("status", ["preparing", "done", "ready"])
       .order("created_at", { ascending: true });
 
     if (!error && data) {
